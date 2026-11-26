@@ -13,7 +13,7 @@ use Illuminate\Console\Command;
 /** Lança créditos de cortesia para uma empresa ou um escritório contábil (testes e atendimento). */
 class ConcederCreditos extends Command
 {
-    protected $signature = 'creditos:conceder {cnpj : CNPJ da empresa ou do escritório} {quantidade : Quantidade de créditos}
+    protected $signature = 'creditos:conceder {cnpj : CNPJ da empresa ou CPF/CNPJ do escritório} {quantidade : Quantidade de créditos}
         {--escritorio : Lançar para o escritório quando houver empresa e escritório com o mesmo CNPJ} {--motivo=Cortesia}';
 
     protected $description = 'Concede créditos de cortesia a uma empresa ou escritório contábil';
@@ -34,7 +34,7 @@ class ConcederCreditos extends Command
         $empresa = ($this->option('escritorio') || ! $empresa) ? $escritorio : $empresa;
 
         if (! $empresa) {
-            $this->error('Nenhuma empresa ou escritório com o CNPJ '.Formata::cnpj($cnpj).'.');
+            $this->error('Nenhuma empresa ou escritório com o documento '.Formata::documento($cnpj).'.');
 
             return self::FAILURE;
         }

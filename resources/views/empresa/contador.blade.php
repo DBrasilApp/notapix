@@ -14,7 +14,7 @@
             <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p class="text-sm text-slate-500">{{ $vinculo->pivot->status === 'ativo' ? 'Escritório com acesso à empresa' : 'Aguardando o escritório aceitar' }}</p>
                 <p class="mt-1 font-medium">{{ $vinculo->razao_social }}</p>
-                <p class="text-sm text-slate-500">CNPJ {{ \App\Support\Formata::cnpj($vinculo->cnpj) }}@if ($vinculo->crc) · CRC {{ $vinculo->crc }}@endif</p>
+                <p class="text-sm text-slate-500">{{ \App\Support\Formata::tipoDocumento($vinculo->cnpj) }} {{ \App\Support\Formata::documento($vinculo->cnpj) }}@if ($vinculo->crc) · CRC {{ $vinculo->crc }}@endif</p>
                 @if ($vinculo->pivot->status === 'ativo' && $vinculo->pivot->usar_saldo_escritorio)
                     <p class="mt-2 text-sm text-marca-800">Quando os seus créditos acabarem, as notas usam os créditos do escritório.</p>
                 @endif
@@ -30,10 +30,20 @@
         @else
             <form method="POST" action="{{ route('empresa.contador.store') }}" class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 @csrf
-                <x-campo label="CNPJ do escritório contábil" name="cnpj_escritorio" required inputmode="numeric" placeholder="00.000.000/0000-00"
-                         ajuda="O escritório precisa ter conta no NotaPix. Depois de enviado, ele aceita o pedido no painel dele." />
+                <x-campo label="CPF ou CNPJ do escritório contábil (ou do contador)" name="cnpj_escritorio" required inputmode="numeric" placeholder="CPF ou CNPJ"
+                         ajuda="Contador autônomo usa o CPF. O escritório precisa ter conta no NotaPix; depois de enviado, ele aceita o pedido no painel dele." />
                 <button class="mt-4 rounded-lg bg-marca-600 px-4 py-2.5 font-medium text-white hover:bg-marca-700">Autorizar escritório</button>
             </form>
         @endif
     </div>
+
+    @include('partials.mascara-cpf-cnpj')
+    <script>
+        (() => {
+            const doc = document.getElementById('cnpj_escritorio');
+            if (!doc) return;
+            doc.addEventListener('input', () => { doc.value = mascaraCpfCnpj(doc.value); });
+            doc.value = mascaraCpfCnpj(doc.value);
+        })();
+    </script>
 @endsection

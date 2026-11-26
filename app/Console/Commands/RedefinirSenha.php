@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 /** Mostra o e-mail de acesso e define uma nova senha (atendimento e testes). */
 class RedefinirSenha extends Command
 {
-    protected $signature = 'usuario:senha {busca : CNPJ da empresa/escritório ou e-mail do usuário} {--senha= : Nova senha (se não informar, gera uma)}';
+    protected $signature = 'usuario:senha {busca : CNPJ da empresa, CPF/CNPJ do escritório ou e-mail do usuário} {--senha= : Nova senha (se não informar, gera uma)}';
 
     protected $description = 'Mostra o login e redefine a senha de um usuário';
 

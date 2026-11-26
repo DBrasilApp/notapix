@@ -199,7 +199,12 @@ class ConsultaCnpj
         if (! $empresa?->temCertificadoValido()) {
             $empresa = $this->empresaDeConsulta();
         }
-        if (! $empresa || strlen($uf) !== 2) {
+        if (! $empresa) {
+            Log::warning('Inscrição estadual não consultada: nenhum certificado disponível. Confira NOTAPIX_CNPJ_CONSULTA no .env (empresa cadastrada e com certificado válido).');
+
+            return $semResposta;
+        }
+        if (strlen($uf) !== 2) {
             return $semResposta;
         }
 
@@ -212,7 +217,7 @@ class ConsultaCnpj
             $r = CadastroSefaz::interpretar($this->fabrica->para($empresa)->consultarCadastro($uf, $cnpj));
         } catch (\Throwable $e) {
             // Falha não fica guardada: na próxima vez tenta de novo
-            Log::info("Consulta cadastro SEFAZ $uf indisponível: ".$e->getMessage());
+            Log::warning("Consulta cadastro SEFAZ $uf indisponível: ".$e->getMessage());
 
             return $semResposta;
         }

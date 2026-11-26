@@ -138,6 +138,18 @@ class EscritorioTest extends TestCase
         $this->actingAs($this->contador)->post("/escritorio/empresas/{$dono->empresa_id}/acessar")->assertNotFound();
     }
 
+    public function test_empresa_autoriza_contador_pelo_cpf(): void
+    {
+        $dono = User::factory()->create();
+        $contadorCpf = Escritorio::factory()->create(['cnpj' => '52998224725', 'razao_social' => 'José Contador']);
+
+        $this->actingAs($dono)->post('/empresa/contador', ['cnpj_escritorio' => '529.982.247-25'])->assertSessionHasNoErrors();
+
+        $this->assertSame($contadorCpf->id, $dono->empresa->escritorios()->first()->id);
+        $this->actingAs($dono)->get('/empresa/contador')->assertOk()->assertSee('CPF 529.982.247-25');
+        $this->actingAs($dono)->post('/empresa/contador', ['cnpj_escritorio' => '111.222.333-44'])->assertSessionHasErrors('cnpj_escritorio');
+    }
+
     public function test_escritorio_inexistente_e_segundo_contador_sao_recusados(): void
     {
         $dono = User::factory()->create();

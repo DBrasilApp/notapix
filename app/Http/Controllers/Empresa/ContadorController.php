@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Auditoria;
 use App\Models\Escritorio;
 use App\Rules\Cnpj;
+use App\Rules\CpfOuCnpj;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -28,9 +29,9 @@ class ContadorController extends Controller
         $empresa = $request->user()->empresa;
         $request->merge(['cnpj_escritorio' => Cnpj::somenteNumeros((string) $request->input('cnpj_escritorio'))]);
         $request->validate(
-            ['cnpj_escritorio' => ['required', 'digits:14', new Cnpj]],
-            ['cnpj_escritorio.required' => 'Informe o CNPJ do escritório contábil.'],
-            ['cnpj_escritorio' => 'CNPJ do escritório'],
+            ['cnpj_escritorio' => ['required', new CpfOuCnpj]],
+            ['cnpj_escritorio.required' => 'Informe o CPF ou CNPJ do escritório contábil (ou do contador).'],
+            ['cnpj_escritorio' => 'CPF ou CNPJ do escritório'],
         );
 
         if ($empresa->escritorios()->wherePivotIn('status', ['ativo', 'pendente'])->exists()) {

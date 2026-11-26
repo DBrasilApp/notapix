@@ -8,7 +8,7 @@
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-2xl font-semibold">{{ $escritorio->razao_social }}</h1>
-            <p class="mt-1 text-sm text-slate-500">CNPJ {{ Formata::cnpj($escritorio->cnpj) }}</p>
+            <p class="mt-1 text-sm text-slate-500">{{ Formata::tipoDocumento($escritorio->cnpj) }} {{ Formata::documento($escritorio->cnpj) }}</p>
         </div>
         <div class="flex flex-wrap gap-2">
             <a href="{{ route('escritorio.arquivos') }}" class="rounded-lg border border-slate-300 px-4 py-2.5 text-slate-700 hover:bg-slate-100">XML do mês</a>

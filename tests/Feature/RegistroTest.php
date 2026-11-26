@@ -32,7 +32,7 @@ class RegistroTest extends TestCase
     public function test_tela_de_cadastro_abre(): void
     {
         $this->get('/cadastro')->assertOk()->assertSee('Sou empresa')->assertSee('Numeração das notas');
-        $this->get('/cadastro?tipo=escritorio')->assertOk()->assertSee('Razão social do escritório');
+        $this->get('/cadastro?tipo=escritorio')->assertOk()->assertSee('Nome do escritório (ou do contador)')->assertSee('CPF ou CNPJ');
     }
 
     public function test_empresa_se_cadastra_em_homologacao_e_aceite_e_registrado(): void
@@ -119,6 +119,24 @@ class RegistroTest extends TestCase
         $this->assertSame(Perfil::Escritorio, $user->perfil);
         $this->assertSame('Comércio Exemplo LTDA', $user->escritorio->razao_social);
         $this->assertNull($user->empresa_id);
+    }
+
+    public function test_contador_autonomo_se_cadastra_com_cpf(): void
+    {
+        $this->post('/cadastro', $this->dados(['tipo' => 'escritorio', 'cnpj' => '529.982.247-25', 'razao_social' => 'José Contador']))
+            ->assertRedirect('/escritorio');
+
+        $user = User::where('email', 'maria@exemplo.com.br')->firstOrFail();
+        $this->assertSame('52998224725', $user->escritorio->cnpj);
+
+        $this->actingAs($user)->get('/escritorio')->assertOk()->assertSee('CPF 529.982.247-25');
+    }
+
+    public function test_cpf_invalido_e_recusado_e_empresa_continua_so_com_cnpj(): void
+    {
+        $this->post('/cadastro', $this->dados(['tipo' => 'escritorio', 'cnpj' => '111.222.333-44']))->assertSessionHasErrors('cnpj');
+        $this->post('/cadastro', $this->dados(['cnpj' => '529.982.247-25']))->assertSessionHasErrors('cnpj');
+        $this->assertGuest();
     }
 
     public function test_nao_e_possivel_se_cadastrar_como_admin(): void

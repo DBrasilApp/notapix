@@ -13,6 +13,20 @@ class Formata
             : (string) $cnpj;
     }
 
+    /** CPF ou CNPJ, conforme o tamanho. */
+    public static function documento(?string $documento): string
+    {
+        $n = preg_replace('/\D/', '', (string) $documento);
+
+        return strlen($n) === 11 ? self::cpf($n) : self::cnpj($documento);
+    }
+
+    /** "CPF" ou "CNPJ", conforme o tamanho. */
+    public static function tipoDocumento(?string $documento): string
+    {
+        return strlen(preg_replace('/\D/', '', (string) $documento)) === 11 ? 'CPF' : 'CNPJ';
+    }
+
     public static function cpf(?string $cpf): string
     {
         $n = preg_replace('/\D/', '', (string) $cpf);

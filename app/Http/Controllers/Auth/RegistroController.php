@@ -11,6 +11,7 @@ use App\Models\Escritorio;
 use App\Models\User;
 use App\Http\Requests\Empresa\AtualizarDadosRequest;
 use App\Rules\Cnpj;
+use App\Rules\CpfOuCnpj;
 use App\Support\RegrasEmpresa;
 use App\Rules\InscricaoEstadual;
 use App\Services\ConsultaCnpj;
@@ -84,7 +85,10 @@ class RegistroController extends Controller
 
         $dados = $request->validate($regrasEmpresa + [
             'tipo' => ['required', Rule::in(['empresa', 'escritorio'])],
-            'cnpj' => ['required', 'digits:14', new Cnpj, Rule::unique($tabela, 'cnpj')],
+            // Escritório: contador autônomo pode usar o CPF
+            'cnpj' => $ehEmpresa
+                ? ['required', 'digits:14', new Cnpj, Rule::unique($tabela, 'cnpj')]
+                : ['required', new CpfOuCnpj, Rule::unique($tabela, 'cnpj')],
             'razao_social' => ['required', 'string', 'max:150'],
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:150', Rule::unique('users', 'email')],
@@ -92,7 +96,8 @@ class RegistroController extends Controller
             'aceite' => ['accepted'],
         ], [
             'aceite.accepted' => 'É preciso aceitar os Termos de Uso e a Política de Privacidade.',
-        ] + RegrasEmpresa::mensagens(), RegrasEmpresa::atributos());
+            'cnpj.unique' => $ehEmpresa ? 'Este CNPJ já tem conta no NotaPix.' : 'Este CPF/CNPJ já tem conta no NotaPix.',
+        ] + RegrasEmpresa::mensagens(), RegrasEmpresa::atributos() + ($ehEmpresa ? [] : ['cnpj' => 'CPF ou CNPJ']));
 
         // Código IBGE da cidade (exigido na NF-e): vem do CEP; se não veio, procura pelo nome
         if ($ehEmpresa && empty($dados['codigo_municipio'])) {

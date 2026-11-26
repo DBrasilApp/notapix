@@ -51,8 +51,9 @@
             </section>
         @else
             <div class="space-y-4">
-                <x-campo label="CNPJ" name="cnpj" required inputmode="numeric" placeholder="00.000.000/0000-00" />
-                <x-campo label="Razão social do escritório" name="razao_social" required />
+                <x-campo label="CPF ou CNPJ" name="cnpj" required inputmode="numeric" placeholder="CPF ou CNPJ"
+                         ajuda="Contador autônomo pode usar o CPF." />
+                <x-campo label="Nome do escritório (ou do contador)" name="razao_social" required />
                 <x-campo label="Seu nome" name="name" required autocomplete="name" />
                 <x-campo label="E-mail" name="email" type="email" required autocomplete="username" ajuda="Usado para entrar no sistema." />
                 <x-campo label="Senha" name="password" type="password" required autocomplete="new-password" ajuda="Mínimo de 8 caracteres, com letras e números." />
@@ -87,15 +88,12 @@
     </p>
 
     @unless ($ehEmpresa)
+        @include('partials.mascara-cpf-cnpj')
         <script>
             (() => {
                 const doc = document.getElementById('cnpj');
-                const formatar = () => {
-                    doc.value = doc.value.replace(/\D/g, '').slice(0, 14).replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
-                        .replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d)/, '$1-$2');
-                };
-                doc.addEventListener('input', formatar);
-                formatar();
+                doc.addEventListener('input', () => { doc.value = mascaraCpfCnpj(doc.value); });
+                doc.value = mascaraCpfCnpj(doc.value);
             })();
         </script>
     @endunless
